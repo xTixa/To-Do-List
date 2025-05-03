@@ -34,7 +34,6 @@ function addTask() {
     input.value = "";
 }
 
-
 function addCategory() {
     const input = document.getElementById("categoryInput");
     const categoryText = input.value.trim();
@@ -44,7 +43,6 @@ function addCategory() {
         return;
     }
 
-    // Criar elementos
     const categoryDiv = document.createElement("div");
     categoryDiv.className = "category";
 
@@ -94,7 +92,6 @@ function addCategory() {
         taskInput.value = "";
     };
 
-    // Junta tudo
     categoryDiv.appendChild(title);
     categoryDiv.appendChild(taskInput);
     categoryDiv.appendChild(addBtn);
@@ -103,4 +100,3 @@ function addCategory() {
     document.getElementById("categories").appendChild(categoryDiv);
     input.value = "";
 }
-
