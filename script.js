@@ -8,16 +8,28 @@ function addTask() {
     }
 
     const li = document.createElement("li");
-    li.textContent = taskText;
 
-    const span = document.createElement("span");
-    span.textContent = "×";
-    span.onclick = function () {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.onclick = function () {
+        li.classList.toggle("done");
+    };
+
+    const spanText = document.createElement("span");
+    spanText.textContent = " " + taskText;
+
+    const removeBtn = document.createElement("span");
+    removeBtn.textContent = "×";
+    removeBtn.className = "remove";
+    removeBtn.onclick = function (event) {
+        event.stopPropagation();
         li.remove();
     };
 
-    li.appendChild(span);
-    document.getElementById("taskList").appendChild(li);
+    li.appendChild(checkbox);
+    li.appendChild(spanText);
+    li.appendChild(removeBtn);
 
+    document.getElementById("taskList").appendChild(li);
     input.value = "";
 }

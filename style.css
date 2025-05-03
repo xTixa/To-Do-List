@@ -5,7 +5,7 @@ body
 }
 
 header {
-    background-color: #3d3d3d;
+    background-color: #000000;
     color: white;
     text-align: center;
     width: 100%;
@@ -19,7 +19,7 @@ header {
     left: 0;
     width: 200px;
     height: calc(100vh - 100px); 
-    background-color: #3d3d3d;
+    background-color: #000000;
     color: white;
     text-align: center;
     padding-top: 10px;
@@ -46,10 +46,10 @@ header {
 }
 
 .container {
-    margin-left: 220px; /* Adjusted for sidebar width */
+    margin-left: 220px; 
     padding: 20px;
-    height: calc(100vh - 100px); /* Adjusted for header height */
-    overflow-y: auto; /* Enable scrolling if content overflows */
+    height: calc(100vh - 100px); 
+    overflow-y: auto; 
 }
 
 #taskInput {
@@ -60,7 +60,7 @@ header {
 
 button {
     padding: 8px 12px;
-    background-color: #3d3d3d;
+    background-color: #000000;
     color: white;
     border: none;
     cursor: pointer;
@@ -70,9 +70,45 @@ button:hover {
     background-color: #575757;
 }
 
+#taskList li {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background-color: #efefef;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+#taskList li input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+#taskList li span.remove {
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: auto;
+}
+
+.done span:not(.remove) {
+    text-decoration: line-through;
+    color: gray;
+    opacity: 0.6;
+}
+
+.done {
+    text-decoration: line-through;
+    color: gray;
+    opacity: 0.6;
+}
+
+
 footer
 {
-    background-color: #3d3d3d;
+    background-color: #000000;
     color: white;
     text-align: center;
     padding: 5px;
