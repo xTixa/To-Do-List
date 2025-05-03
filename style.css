@@ -3,13 +3,32 @@ body
     background-color: #ffffff;    
 }
 
-
-
-footer{
+header
+{
     background-color: #3d3d3d;
     color: white;
     text-align: center;
-    padding: 10px;
+    padding: 5px;
+    width: 100%;
+}
+
+sidebar
+{
+    background-color: #3d3d3d;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    width: 200px;
+    float: left;
+}
+
+
+footer
+{
+    background-color: #3d3d3d;
+    color: white;
+    text-align: center;
+    padding: 5px;
     position: fixed;
     bottom: 0;
     width: 100%;
