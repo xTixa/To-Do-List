@@ -45,6 +45,31 @@ header {
     text-decoration: none;
 }
 
+.container {
+    margin-left: 220px; /* Adjusted for sidebar width */
+    padding: 20px;
+    height: calc(100vh - 100px); /* Adjusted for header height */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+}
+
+#taskInput {
+    width: 70%;
+    padding: 8px;
+    margin-right: 5px;
+}
+
+button {
+    padding: 8px 12px;
+    background-color: #3d3d3d;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #575757;
+}
+
 footer
 {
     background-color: #3d3d3d;
