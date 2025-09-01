@@ -17,20 +17,23 @@ let currentView = "inbox";   // 'inbox' | 'today' | 'important' | 'cat:<id>'
 
 // ===== Init / Persist =====
 function init(){
-  return {
-    inbox: { id: "inbox", name: "Tasks", tasks: [] },
-    cats: [],
-  };
+  return { inbox: { id: "inbox", name: "Tasks", tasks: [] }, cats: [] };
 }
 function save(){ localStorage.setItem(storeKey, JSON.stringify(state)); }
-function load(){
-  try{ return JSON.parse(localStorage.getItem(storeKey)); }catch{ return null; }
-}
+function load(){ try{ return JSON.parse(localStorage.getItem(storeKey)); }catch{ return null; } }
 
 // ===== Theme =====
 function applyTheme(){
   const t = localStorage.getItem(themeKey) || "dark";
-  if(t==="light") document.body.classList.add("light"); else document.body.classList.remove("light");
+  document.body.classList.toggle("light", t === "light");
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const isLight = document.body.classList.contains("light");
+  const icon = document.querySelector("#themeBtn i");
+  if(icon){
+    icon.className = isLight ? "bi bi-sun-fill" : "bi bi-moon-stars";
+  }
 }
 applyTheme();
 
@@ -54,7 +57,7 @@ const menuBtn = $("#menuBtn");
 const nav = document.querySelector(".nav");
 const mask = $("#mask");
 
-// Counters in side
+// Counters
 const countToday = $("#countToday");
 const countImportant = $("#countImportant");
 const countInbox = $("#countInbox");
@@ -72,7 +75,7 @@ const confirmTitle = document.getElementById("confirmTitle");
 const confirmMsg = document.getElementById("confirmMsg");
 const confirmOk = document.getElementById("confirmOk");
 
-// ===== Event Wiring =====
+// ===== Events =====
 document.addEventListener("DOMContentLoaded", () => {
   renderAll();
   taskText.focus();
@@ -81,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
 themeBtn.addEventListener("click", () => {
   const isLight = document.body.classList.toggle("light");
   localStorage.setItem(themeKey, isLight ? "light":"dark");
+  updateThemeIcon();
 });
 
 $$(".nav-btn").forEach(btn=>{
@@ -108,7 +112,7 @@ saveCatBtn.addEventListener("click", (e)=>{
   renderCats();
 });
 
-// Bloqueia submit default (já lidamos no click)
+// Prevent default submit
 catForm.addEventListener("submit", (e)=> e.preventDefault());
 
 addForm.addEventListener("submit", (e)=>{
@@ -116,18 +120,12 @@ addForm.addEventListener("submit", (e)=>{
   const text = taskText.value.trim();
   if(!text) return;
   const t = {
-    id: uid(),
-    text,
-    done: false,
-    star: false,
-    date: taskDate.value || "",
-    prio: ["low","med","high"].includes(taskPrio.value) ? taskPrio.value : "none",
+    id: uid(), text, done: false, star: false,
+    date: taskDate.value || "", prio: ["low","med","high"].includes(taskPrio.value) ? taskPrio.value : "none",
     createdAt: Date.now()
   };
   listForCurrent().tasks.push(t);
-  taskText.value = "";
-  taskDate.value = "";
-  taskPrio.value = "none";
+  taskText.value = ""; taskDate.value = ""; taskPrio.value = "none";
   save();
   renderAll();
 });
@@ -137,8 +135,7 @@ filterSelect.addEventListener("change", renderTasks);
 clearDoneBtn.addEventListener("click", ()=>{
   const list = listForCurrent();
   list.tasks = list.tasks.filter(t=>!t.done);
-  save();
-  renderAll();
+  save(); renderAll();
 });
 
 // Sidebar open/close (mobile)
@@ -147,28 +144,21 @@ menuBtn?.addEventListener("click", ()=>{
   mask.classList.toggle("show", opened);
 });
 mask.addEventListener("click", ()=>{
-  nav.classList.remove("open");
-  mask.classList.remove("show");
+  nav.classList.remove("open"); mask.classList.remove("show");
 });
 
 function closeNavIfMobile(){
   if(window.matchMedia("(max-width: 900px)").matches){
-    nav.classList.remove("open");
-    mask.classList.remove("show");
+    nav.classList.remove("open"); mask.classList.remove("show");
   }
 }
 
 // ===== Selectors =====
 function listForCurrent(){
   if(currentView==="inbox") return state.inbox;
-  if(currentView.startsWith("cat:")){
-    const id = currentView.split(":")[1];
-    return state.cats.find(c=>c.id===id);
-  }
-  // virtual views use inbox + all cats merged
+  if(currentView.startsWith("cat:")){ const id = currentView.split(":")[1]; return state.cats.find(c=>c.id===id); }
   return mergedList();
 }
-
 function mergedList(){
   const allTasks = [
     ...state.inbox.tasks.map(t=>({ ...t, __src:"inbox" })),
@@ -178,12 +168,7 @@ function mergedList(){
 }
 
 // ===== Rendering =====
-function renderAll(){
-  renderCats();
-  renderCounts();
-  renderHeader();
-  renderTasks();
-}
+function renderAll(){ renderCats(); renderCounts(); renderHeader(); renderTasks(); }
 
 function renderCats(){
   catList.innerHTML = "";
@@ -191,25 +176,20 @@ function renderCats(){
     const row = document.createElement("div");
     row.className = "list-item";
     row.innerHTML = `
-      <span class="list-name">📁 ${escapeHTML(cat.name)}</span>
+      <span class="list-name"><i class="bi bi-folder2"></i> ${escapeHTML(cat.name)}</span>
       <span class="list-actions">
-        <button class="icon-btn" title="Rename" data-act="rename">✏️</button>
-        <button class="icon-btn" title="Delete" data-act="del">🗑️</button>
+        <button class="icon-btn" title="Rename" data-act="rename"><i class="bi bi-pencil"></i></button>
+        <button class="icon-btn" title="Delete" data-act="del"><i class="bi bi-trash"></i></button>
       </span>
     `;
     row.addEventListener("click", (e)=>{
-      if(e.target.dataset.act) return; // action buttons handle themselves
-      currentView = `cat:${cat.id}`;
-      renderAll();
-      closeNavIfMobile();
+      if(e.target.closest("[data-act]")) return;
+      currentView = `cat:${cat.id}`; renderAll(); closeNavIfMobile();
     });
     row.querySelector('[data-act="rename"]').addEventListener("click", (e)=>{
       e.stopPropagation();
       const name = prompt("New name", cat.name);
-      if(name && name.trim()){
-        cat.name = name.trim();
-        save(); renderCats(); renderHeader();
-      }
+      if(name && name.trim()){ cat.name = name.trim(); save(); renderCats(); renderHeader(); }
     });
     row.querySelector('[data-act="del"]').addEventListener("click", (e)=>{
       e.stopPropagation();
@@ -233,10 +213,7 @@ function renderHeader(){
   if(currentView==="inbox"){ viewTitle.textContent = "Tasks"; }
   else if(currentView==="today"){ viewTitle.textContent = "My Day"; }
   else if(currentView==="important"){ viewTitle.textContent = "Important"; }
-  else if(currentView.startsWith("cat:")){
-    const cat = listForCurrent();
-    viewTitle.textContent = cat?.name || "Category";
-  }
+  else if(currentView.startsWith("cat:")){ const cat = listForCurrent(); viewTitle.textContent = cat?.name || "Category"; }
 }
 
 function renderCounts(){
@@ -255,13 +232,9 @@ function renderCounts(){
 
 function visibleTasks(){
   let items = [];
-  if(currentView==="today"){
-    items = mergedList().tasks.filter(t=> isToday(t.date));
-  }else if(currentView==="important"){
-    items = mergedList().tasks.filter(t=> t.star);
-  }else{
-    items = listForCurrent().tasks;
-  }
+  if(currentView==="today"){ items = mergedList().tasks.filter(t=> isToday(t.date)); }
+  else if(currentView==="important"){ items = mergedList().tasks.filter(t=> t.star); }
+  else{ items = listForCurrent().tasks; }
 
   const q = searchInput.value.trim().toLowerCase();
   if(q) items = items.filter(t => t.text.toLowerCase().includes(q));
@@ -304,41 +277,46 @@ function renderTasks(){
           ${isToday(t.date) ? `<span class="chip today">today</span>` : ""}
         </div>
         <div class="task-meta">
-          ${t.date ? `📅 ${t.date}` : ""}
+          ${t.date ? `<span><i class="bi bi-calendar-event"></i>${t.date}</span>` : ""}
         </div>
       </div>
       <div class="task-actions">
-        <button class="icon-btn" title="Important" data-act="star">${t.star?"⭐":"☆"}</button>
-        <button class="icon-btn" title="Edit" data-act="edit">✏️</button>
-        <button class="icon-btn" title="Delete" data-act="del">🗑️</button>
+        <button class="icon-btn" title="Important" data-act="star">
+          <i class="${t.star ? "bi bi-star-fill" : "bi bi-star"}"></i>
+        </button>
+        <button class="icon-btn" title="Edit" data-act="edit"><i class="bi bi-pencil"></i></button>
+        <button class="icon-btn" title="Delete" data-act="del"><i class="bi bi-trash"></i></button>
       </div>
     `;
 
-    // interactions
+    // done toggle
     li.querySelector(".mark").addEventListener("change", (e)=>{
       setTask(t.id, { done: e.target.checked }, t.__src);
       li.querySelector('[data-elt="name"]').classList.toggle("done", e.target.checked);
       renderCounts(); save();
     });
 
-    li.querySelector('[data-act="star"]').addEventListener("click", ()=>{
+    // star toggle
+    li.querySelector('[data-act="star"]').addEventListener("click", (ev)=>{
       setTask(t.id, { star: !t.star }, t.__src);
-      save(); renderAll();
+      // swap icon instantly
+      const i = ev.currentTarget.querySelector("i");
+      i.className = t.star ? "bi bi-star" : "bi bi-star-fill";
+      save(); renderCounts(); // renderAll() not needed
     });
 
+    // delete
     li.querySelector('[data-act="del"]').addEventListener("click", ()=>{
       askConfirm({
         title: "Delete task",
         message: `Are you sure you want to delete “${t.text}”?`,
         okText: "Delete"
       }).then(go=>{
-        if(go){
-          removeTask(t.id, t.__src);
-          save(); renderAll();
-        }
+        if(go){ removeTask(t.id, t.__src); save(); renderAll(); }
       });
     });
 
+    // edit inline
     li.querySelector('[data-act="edit"]').addEventListener("click", ()=> editInline(li, t));
 
     // drag & drop (only for real lists)
@@ -404,11 +382,8 @@ function handleDragOver(e){
   const after = getDragAfterElement(taskList, e.clientY);
   const dragging = $(".task.dragging");
   if(!dragging) return;
-  if(after==null){
-    taskList.appendChild(dragging);
-  } else {
-    taskList.insertBefore(dragging, after);
-  }
+  if(after==null){ taskList.appendChild(dragging); }
+  else { taskList.insertBefore(dragging, after); }
 }
 function handleDrop(){
   if(!(currentView==="inbox"||currentView.startsWith("cat:"))) return;
@@ -429,7 +404,7 @@ function getDragAfterElement(container, y){
 
 // ===== Utils =====
 function escapeHTML(str){
-  return str.replace(/[&<>"']/g, s=>({ "&":"&amp;","<":"&lt;"," >":"&gt;",'"':"&quot;","'":"&#39;" }[s]));
+  return str.replace(/[&<>"']/g, s=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[s]));
 }
 
 // ===== Bootstrap Confirm helper =====
