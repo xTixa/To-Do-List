@@ -1,146 +1,29 @@
-body
-{
-    background-color: #ffffff;  
-    margin: 0;  
+body{
+    background-color: beige;
 }
 
-header {
-    background-color: #000000;
-    color: white;
+header{
     text-align: center;
-    width: 100%;
-    height: 100px; 
-    box-sizing: border-box;
+    font-size: 30px;
+    font-weight: bold;
+    margin: 20px;
 }
 
 .sidebar {
-    position: fixed;
-    top: 100px;
-    left: 0;
     width: 200px;
-    height: calc(100vh - 100px); 
-    background-color: #000000;
-    color: white;
-    text-align: center;
-    padding-top: 10px;
-}
-
-.menu ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.menu li {
-    padding: 8px;
-    text-align: center;
-}
-
-.menu li:hover {
-    background-color: #575757;
-}
-
-.menu li a {
-    color: white;
-    text-decoration: none;
-}
-
-.category {
-    background-color: #1e1e1e;
+    float: left;
+    background-color: lightgray;
     padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    text-align: left;
 }
 
-.category h3 {
-    margin: 0 0 10px 0;
-    color: #ffffff;
+.content {
+    margin-left: 220px;
+    padding: 10px;
 }
 
-.category input[type="text"] {
-    width: 80%;
-    padding: 5px;
-    margin-bottom: 5px;
-}
-
-.category button {
-    margin-bottom: 10px;
-}
-
-.category ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-.container {
-    margin-left: 220px; 
-    padding: 20px;
-    height: calc(100vh - 100px); 
-    overflow-y: auto; 
-}
-
-#taskInput {
-    width: 70%;
-    padding: 8px;
-    margin-right: 5px;
-}
-
-button {
-    padding: 8px 12px;
-    background-color: #000000;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #575757;
-}
-
-#taskList li {
-    display: flex;
-    align-items: center;
-    padding: 8px;
-    background-color: #efefef;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    justify-content: space-between;
-    gap: 10px;
-}
-
-#taskList li input[type="checkbox"] {
-    transform: scale(1.2);
-    cursor: pointer;
-}
-
-#taskList li span.remove {
-    color: red;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: auto;
-}
-
-.done span:not(.remove) {
-    text-decoration: line-through;
-    color: gray;
-    opacity: 0.6;
-}
-
-.done {
-    text-decoration: line-through;
-    color: gray;
-    opacity: 0.6;
-}
-
-
-footer
-{
-    background-color: #000000;
-    color: white;
+footer {
+    clear: both;
     text-align: center;
-    padding: 5px;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+    padding: 10px;
+    background-color: lightgray;
 }
