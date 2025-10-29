@@ -25,7 +25,7 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
 .nav{ border-right:1px solid var(--line); display:flex; flex-direction:column; padding:16px; gap:16px; transition: transform .2s ease, box-shadow .2s ease; background: var(--bg); }
 .bar{ display:flex; align-items:center; justify-content:space-between; }
 .bar-actions{ display:flex; align-items:center; gap:8px; }
-.logo{ margin:0; font-size:22px; font-weight:800; letter-spacing:.5px; }
+.logo{ margin:0; font-size:22px; font-weight:800; letter-spacing:.5px; cursor:pointer; }
 
 .nav-menu{ display:flex; flex-direction:column; gap:8px; }
 .nav-btn{
@@ -39,9 +39,10 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
 .rule{ height:1px; background:var(--line); }
 
 .lists{ display:flex; flex-direction:column; gap:12px; flex:1; overflow:auto; }
-.lists-head{ display:flex; align-items:center; justify-content:space-between; }
+.lists-head{ display:flex; align-items:center; gap:6px; justify-content:flex-start }
 .lists-title{ margin:0; font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
-.list-groups{ display:flex; flex-direction:column; gap:8px; }
+.list-groups{ display:flex; flex-direction:column; gap:8px; transition:height .2s; }
+.list-groups.collapsed { display: none; }
 
 /* categoria */
 .list-item{
@@ -73,25 +74,40 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
 .input::placeholder{ color:var(--muted) }
 .grow{ flex:1; min-width:200px; }
 
-.btn{
-  height:40px; padding:0 14px; border-radius:10px; border:1px solid var(--line);
-  background:var(--brand); color:#fff; cursor:pointer; box-shadow:var(--shadow);
-}
-.btn:hover{ filter:brightness(1.05) }
-.btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--line); }
-.btn-small{ height:32px; padding:0 10px; }
-.btn-icon{ height:40px; width:40px; display:grid; place-items:center; border-radius:12px; background:var(--card); border:1px solid var(--line); }
-
 /* ADD */
-.add-box{ display:flex; gap:8px; align-items:center; }
+.add-box {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: var(--shadow);
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.add-box .btn {
+  background: linear-gradient(90deg, var(--brand), #6fadff);
+  font-weight: bold;
+  border: none;
+}
 
 /* TASKS */
 .tasks{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
 .task{
   display:grid; grid-template-columns: 28px 1fr auto; gap:10px; align-items:center;
   background:var(--card); border:1px solid var(--line); border-radius:14px; padding:10px 12px;
+  transition: box-shadow .2s, border-color .2s, opacity .3s, transform .3s;
+}
+.task:hover {
+  box-shadow: 0 4px 16px rgba(79,140,255,.15);
+  border-color: var(--brand);
 }
 .task.dragging{ opacity:.6; outline:2px dashed var(--brand); }
+.task.removing {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity .3s, transform .3s;
+}
 .mark{ width:20px; height:20px; }
 .task-text{ display:flex; flex-direction:column; gap:2px; }
 .task-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -129,11 +145,9 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
 }
 .confirm-msg{ margin: 6px 0 0 0; color: var(--muted); }
 
-/* Overlay */
 .mask{ position: fixed; inset:0; background: rgba(0,0,0,.5); opacity:0; pointer-events:none; transition: opacity .2s ease; z-index:8; }
 .mask.show{ opacity:1; pointer-events:auto; }
 
-/* Sidebar colapsável */
 #menuBtn{ display:none; }
 @media (max-width: 900px){
   .app{ grid-template-columns: 1fr; }
@@ -144,7 +158,6 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
   #menuBtn{ display:inline-grid; }
 }
 
-/* Empilhar no mobile */
 @media (max-width: 720px){
   .toolbar{ flex-direction: column; align-items: stretch; }
   .toolbar-right{ width:100%; }
@@ -152,7 +165,6 @@ i.bi{ line-height:1; vertical-align:-0.125em; }
   .grow{ min-width: unset; flex: 1 1 100%; }
 }
 
-/* Lista compacta em ecrã pequeno */
 @media (max-width: 520px){
   .task{ grid-template-columns: 24px 1fr auto; padding: 10px; }
   .task-meta{ display:none; }

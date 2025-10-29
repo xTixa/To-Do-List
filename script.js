@@ -12,8 +12,7 @@ const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
 const state = load() || init();
-
-let currentView = "inbox";   // 'inbox' | 'today' | 'important' | 'cat:<id>'
+let currentView = "inbox"; // 'inbox' | 'today' | 'important' | 'cat:<id>'
 
 // ===== Init / Persist =====
 function init(){
@@ -52,12 +51,13 @@ const catList = $("#catList");
 const newCatBtn = $("#newCatBtn");
 const themeBtn = $("#themeBtn");
 
-// Sidebar + mask
+const listsToggleBtn = $("#listsToggleBtn");
+let listsCollapsed = false;
+
 const menuBtn = $("#menuBtn");
 const nav = document.querySelector(".nav");
 const mask = $("#mask");
 
-// Counters
 const countToday = $("#countToday");
 const countImportant = $("#countImportant");
 const countInbox = $("#countInbox");
@@ -81,12 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
   taskText.focus();
 });
 
+// Toggle categorias
+listsToggleBtn.addEventListener("click", ()=>{
+  listsCollapsed = !listsCollapsed;
+  catList.classList.toggle("collapsed", listsCollapsed);
+  listsToggleBtn.innerHTML = `<i class="bi ${listsCollapsed ? "bi-caret-right" : "bi-caret-down"}"></i>`;
+});
+
+// Tema
 themeBtn.addEventListener("click", () => {
   const isLight = document.body.classList.toggle("light");
   localStorage.setItem(themeKey, isLight ? "light":"dark");
   updateThemeIcon();
 });
 
+// Navegação
 $$(".nav-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     const v = btn.dataset.view;
@@ -96,6 +105,7 @@ $$(".nav-btn").forEach(btn=>{
   });
 });
 
+// Novo categoria
 newCatBtn.addEventListener("click", ()=>{
   catName.value = "";
   catModal.show();
@@ -115,6 +125,7 @@ saveCatBtn.addEventListener("click", (e)=>{
 // Prevent default submit
 catForm.addEventListener("submit", (e)=> e.preventDefault());
 
+// Adicionar tarefa
 addForm.addEventListener("submit", (e)=>{
   e.preventDefault();
   const text = taskText.value.trim();
@@ -145,6 +156,13 @@ menuBtn?.addEventListener("click", ()=>{
 });
 mask.addEventListener("click", ()=>{
   nav.classList.remove("open"); mask.classList.remove("show");
+});
+
+// Logo navega para Tasks principais (inbox)
+document.querySelector(".logo").addEventListener("click", () => {
+  currentView = "inbox";
+  renderAll();
+  closeNavIfMobile();
 });
 
 function closeNavIfMobile(){
@@ -199,9 +217,13 @@ function renderCats(){
         okText: "Delete"
       }).then(go=>{
         if(go){
-          state.cats = state.cats.filter(c=>c.id!==cat.id);
-          if(currentView===`cat:${cat.id}`) currentView="inbox";
-          save(); renderAll();
+          row.classList.add("removing");
+          setTimeout(()=>{
+            state.cats = state.cats.filter(c=>c.id!==cat.id);
+            if(currentView===`cat:${cat.id}`) currentView="inbox";
+            save(); renderAll();
+            confirmModal.hide();
+          }, 300);
         }
       });
     });
@@ -289,37 +311,38 @@ function renderTasks(){
       </div>
     `;
 
-    // done toggle
     li.querySelector(".mark").addEventListener("change", (e)=>{
       setTask(t.id, { done: e.target.checked }, t.__src);
       li.querySelector('[data-elt="name"]').classList.toggle("done", e.target.checked);
       renderCounts(); save();
     });
 
-    // star toggle
     li.querySelector('[data-act="star"]').addEventListener("click", (ev)=>{
       setTask(t.id, { star: !t.star }, t.__src);
-      // swap icon instantly
       const i = ev.currentTarget.querySelector("i");
       i.className = t.star ? "bi bi-star" : "bi bi-star-fill";
-      save(); renderCounts(); // renderAll() not needed
+      save(); renderCounts();
     });
 
-    // delete
     li.querySelector('[data-act="del"]').addEventListener("click", ()=>{
       askConfirm({
         title: "Delete task",
         message: `Are you sure you want to delete “${t.text}”?`,
         okText: "Delete"
       }).then(go=>{
-        if(go){ removeTask(t.id, t.__src); save(); renderAll(); }
+        if(go){
+          li.classList.add("removing");
+          setTimeout(()=>{
+            removeTask(t.id, t.__src);
+            save(); renderAll();
+            confirmModal.hide();
+          }, 300);
+        }
       });
     });
 
-    // edit inline
     li.querySelector('[data-act="edit"]').addEventListener("click", ()=> editInline(li, t));
 
-    // drag & drop (only for real lists)
     if(currentView==="inbox" || currentView.startsWith("cat:")){
       li.addEventListener("dragstart", ()=> li.classList.add("dragging"));
       li.addEventListener("dragend", ()=> li.classList.remove("dragging"));
